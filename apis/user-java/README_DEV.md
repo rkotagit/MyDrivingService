@@ -12,3 +12,5 @@ mvn test
 Get-Content Dockerfile | docker build -
 
 ```
+
+Hello world!

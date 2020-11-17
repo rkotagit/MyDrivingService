@@ -77,7 +77,7 @@ public class UserRepositoryServiceTest {
             fail("Unable to locate user");
 
         }catch (NullPointerException e) {
-            assertEquals("Unable to locate user", e.getMessage());
+            assertEquals("Unable to locate user OR NOT", e.getMessage());
         }
         verify(userRepository, never()).save(profile);
     }

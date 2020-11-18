@@ -9,6 +9,14 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
+variables:
+  # Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: '75f5bbf3-21b8-4d66-b774-f62c7d72c01f'
+  imageRepository: 'devopsoh/api-user-java'
+  containerRegistry: 'openhacka2k61f74acr.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/apis/user-java/Dockerfile'
+  tag: '$(Build.BuildId)'
+
 steps:
 - task: Maven@3
   inputs:
@@ -21,3 +29,12 @@ steps:
     testResultsFiles: '**/surefire-reports/TEST-*.xml'
     goals: 'package'
 
+- task: Docker@2
+  displayName: Build and push an image to container registry
+  inputs:
+    command: buildAndPush
+    repository: $(imageRepository)
+    dockerfile: $(dockerfilePath)
+    containerRegistry: $(dockerRegistryServiceConnection)
+    tags: |
+      $(tag)

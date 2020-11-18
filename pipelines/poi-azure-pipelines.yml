@@ -79,3 +79,12 @@ steps:
       }
       exit 1
     pwsh: true
+
+
+# - task: AzureAppServiceManage@0
+#   inputs:
+#     azureSubscription: 'OTA-PRD-158(1)(4631b064-cd36-4785-99b7-195ab94da98b)'
+#     Action: 'Swap Slots'
+#     WebAppName: 'openhacka2k61f74poi'
+#     ResourceGroupName: 'openhacka2k61f74rg'
+#     SourceSlot: 'staging'

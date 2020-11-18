@@ -1,0 +1,56 @@
+# ASP.NET Core (.NET Framework)
+# Build and test ASP.NET Core projects targeting the full .NET Framework.
+# Add steps that publish symbols, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  solution: '$(System.DefaultWorkingDirectory)/apis/poi/web/poi.csproj'
+  tests: '$(System.DefaultWorkingDirectory)/apis/poi/tests/UnitTests/UnitTests.csproj'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+  imageRepository: 'devopsoh/api-poi'
+  containerRegistry: 'openhacka2k61f74acr.azurecr.io'
+
+steps:
+- task: NuGetToolInstaller@1
+
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(solution)'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+    projects: '$(solution)'
+    
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'test'
+    projects: '$(tests)'
+
+- task: Docker@2
+  inputs:
+    containerRegistry: 'openhacka2k61f74acr'
+    repository: 'devopsoh/api-poi'
+    command: 'buildAndPush'
+    Dockerfile: '$(Build.SourcesDirectory)/apis/poi/web/Dockerfile'
+    tags: '$(Build.BuildId)'
+
+- task: AzureRmWebAppDeployment@4
+  inputs:
+    ConnectionType: 'AzureRM'
+    azureSubscription: 'OTA-PRD-158(4631b064-cd36-4785-99b7-195ab94da98b)'
+    appType: 'webAppContainer'
+    WebAppName: 'openhacka2k61f74poi'
+    deployToSlotOrASE: true
+    ResourceGroupName: 'openhacka2k61f74rg'
+    SlotName: 'staging'
+    DockerNamespace: 'openhacka2k61f74acr.azurecr.io'
+    DockerRepository: 'devopsoh/api-poi'
+    DockerImageTag: '$(Build.BuildId)'

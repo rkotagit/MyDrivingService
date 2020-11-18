@@ -52,6 +52,6 @@ steps:
     deployToSlotOrASE: true
     ResourceGroupName: 'openhacka2k61f74rg'
     SlotName: 'staging'
-    DockerNamespace: $(containerRegistry)
-    DockerRepository: $(imageRepository)
+    DockerNamespace: '$(containerRegistry)'
+    DockerRepository: '$(imageRepository)'
     DockerImageTag: '$(Build.BuildId)'

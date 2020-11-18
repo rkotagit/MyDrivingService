@@ -45,11 +45,11 @@ stages:
 
 - stage : Staging
   dependsOn: Build
+  environment: release
   jobs:
   - job: Publish
     steps:
     - task: AzureRmWebAppDeployment@4
-      environment: release
       inputs:
         ConnectionType: 'AzureRM'
         azureSubscription: 'OTA-PRD-158(4631b064-cd36-4785-99b7-195ab94da98b)'

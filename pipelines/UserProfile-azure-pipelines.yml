@@ -1,13 +1,27 @@
-# Node.js
-# Build a general Node.js project with npm.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+# Docker
+# Build and push an image to Azure Container Registry
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
 
 trigger:
 - users/nelsd/userprofile
 
 pool:
   vmImage: 'ubuntu-latest'
+
+resources:
+- repo: self
+
+variables:
+  # Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: '75f5bbf3-21b8-4d66-b774-f62c7d72c01f'
+  imageRepository: 'userprofileimg'
+  containerRegistry: 'openhacka2k61f74acr.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/apis/userprofile/Dockerfile'
+  tag: '$(Build.BuildId)'
+  
+  # Agent VM image name
+  #vmImageName: 'ubuntu-latest'
+
 
 steps:
 - task: NodeTool@0
@@ -21,4 +35,22 @@ steps:
     npm run build
     npm run test
   displayName: 'npm install, build and Test'
-  
+
+stages:
+- stage: Build
+  displayName: Build and push stage
+  jobs:  
+  - job: Build
+    displayName: Build
+    #pool:
+    #  vmImage: $(vmImageName)
+    steps:
+    - task: Docker@2
+      displayName: Build and push an image to container registry
+      inputs:
+        command: buildAndPush
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)

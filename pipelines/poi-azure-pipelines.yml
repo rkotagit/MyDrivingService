@@ -40,3 +40,16 @@ steps:
     command: 'buildAndPush'
     Dockerfile: '$(Build.SourcesDirectory)/apis/poi/web/Dockerfile'
     tags: '$(Build.BuildId)'
+
+- task: AzureRmWebAppDeployment@4
+  inputs:
+    ConnectionType: 'AzureRM'
+    azureSubscription: 'OTA-PRD-158(4631b064-cd36-4785-99b7-195ab94da98b)'
+    appType: 'webAppContainer'
+    WebAppName: 'openhacka2k61f74poi'
+    deployToSlotOrASE: true
+    ResourceGroupName: 'openhacka2k61f74rg'
+    SlotName: 'staging'
+    DockerNamespace: $(containerRegistry)
+    DockerRepository: $(imageRepository)
+    DockerImageTag: '$(Build.BuildId)'

@@ -21,43 +21,43 @@ stages:
 
 - stage: Build
   jobs:
-  - task: Maven@3
-    inputs:
-      mavenPomFile: 'apis/user-java/pom.xml'
-      mavenOptions: '-Xmx3072m'
-      javaHomeOption: 'JDKVersion'
-      jdkVersionOption: '1.8'
-      jdkArchitectureOption: 'x64'
-      publishJUnitResults: true
-      testResultsFiles: '**/surefire-reports/TEST-*.xml'
-      goals: 'package'
-
-- stage: ACR
-  dependsOn: Build
-  jobs:
-  - task: Docker@2
-    inputs:
-      command: buildAndPush
-      repository: $(imageRepository)
-      dockerfile: $(dockerfilePath)
-      containerRegistry: $(dockerRegistryServiceConnection)
-      tags: |
-        latest
-        $(tag)
+  - job: Maven
+    steps:
+    - task: Maven@3
+      inputs:
+        mavenPomFile: 'apis/user-java/pom.xml'
+        mavenOptions: '-Xmx3072m'
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: '1.8'
+        jdkArchitectureOption: 'x64'
+        publishJUnitResults: true
+        testResultsFiles: '**/surefire-reports/TEST-*.xml'
+        goals: 'package'
+    - task: Docker@2
+      inputs:
+        command: buildAndPush
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          latest
+          $(tag)
 
 - stage : Staging
-  dependsOn: ACR
+  dependsOn: Build
   jobs:
-  - task: AzureRmWebAppDeployment@4
-    environment: release
-    inputs:
-      ConnectionType: 'AzureRM'
-      azureSubscription: 'OTA-PRD-158(4631b064-cd36-4785-99b7-195ab94da98b)'
-      appType: 'webAppContainer'
-      WebAppName: 'openhacka2k61f74userjava'
-      deployToSlotOrASE: true
-      ResourceGroupName: 'openhacka2k61f74rg'
-      SlotName: 'staging'
-      DockerNamespace: $(containerRegistry)
-      DockerRepository: $(imageRepository)
-      DockerImageTag: '$(Build.BuildId)'
+  - job: Publish
+    steps:
+    - task: AzureRmWebAppDeployment@4
+      environment: release
+      inputs:
+        ConnectionType: 'AzureRM'
+        azureSubscription: 'OTA-PRD-158(4631b064-cd36-4785-99b7-195ab94da98b)'
+        appType: 'webAppContainer'
+        WebAppName: 'openhacka2k61f74userjava'
+        deployToSlotOrASE: true
+        ResourceGroupName: 'openhacka2k61f74rg'
+        SlotName: 'staging'
+        DockerNamespace: $(containerRegistry)
+        DockerRepository: $(imageRepository)
+        DockerImageTag: '$(Build.BuildId)'

@@ -4,7 +4,7 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/java
 
 trigger:
-- users/fleide/UserJava
+- master
 
 pool:
   vmImage: 'ubuntu-latest'

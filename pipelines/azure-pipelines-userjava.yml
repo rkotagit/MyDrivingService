@@ -21,7 +21,7 @@ stages:
 
 - stage: Build
   jobs:
-  - job: Maven@3
+  - task: Maven@3
     inputs:
       mavenPomFile: 'apis/user-java/pom.xml'
       mavenOptions: '-Xmx3072m'
@@ -35,7 +35,7 @@ stages:
 - stage: ACR
   dependsOn: Build
   jobs:
-  - job: Docker@2
+  - task: Docker@2
     inputs:
       command: buildAndPush
       repository: $(imageRepository)
@@ -48,7 +48,7 @@ stages:
 - stage : Staging
   dependsOn: ACR
   jobs:
-  - job: AzureRmWebAppDeployment@4
+  - task: AzureRmWebAppDeployment@4
     environment: release
     inputs:
       ConnectionType: 'AzureRM'

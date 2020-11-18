@@ -10,7 +10,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  solution: '$(System.DefaultWorkingDirectory)/apis/poi/poi.csproj'
+  solution: '$(System.DefaultWorkingDirectory)/apis/poi/web/poi.csproj'
   tests: '$(System.DefaultWorkingDirectory)/apis/poi/tests/UnitTests.csproj'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'

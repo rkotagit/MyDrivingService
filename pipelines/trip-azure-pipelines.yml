@@ -50,3 +50,15 @@ steps:
 - task: PublishBuildArtifacts@1
   inputs:
      artifactName: drop
+- task: AzureRmWebAppDeployment@4
+  inputs:
+    ConnectionType: 'AzureRM'
+    azureSubscription: 'OTA-PRD-158(4631b064-cd36-4785-99b7-195ab94da98b)'
+    appType: 'webAppContainer'
+    WebAppName: 'openhacka2k61f74trips'
+    deployToSlotOrASE: true
+    ResourceGroupName: 'openhacka2k61f74rg'
+    SlotName: 'staging'
+    DockerNamespace: 'openhacka2k61f74acr.azurecr.io'
+    DockerRepository: 'devopsoh/api-trips'
+    DockerImageTag: '$(Build.BuildId)'

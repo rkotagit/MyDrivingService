@@ -25,7 +25,7 @@ steps:
 - task: Go@0
   inputs:
     command: 'test'
-    arguments: '-v'
+    arguments: '-v ./tests'
     workingDirectory: '$(System.DefaultWorkingDirectory)/apis/trips'
 - task: CopyFiles@2
   inputs:

@@ -1,0 +1,52 @@
+# Go
+# Build your Go project.
+# Add steps that test, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/go
+
+trigger: 
+ - users/nakota/TripsAPI
+
+pool:
+   vmImage: 'ubuntu-latest'
+
+variables:
+  # Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: '75f5bbf3-21b8-4d66-b774-f62c7d72c01f'
+  imageRepository: 'devopsoh/api-trips'
+  containerRegistry: 'openhacka2k61f74acr.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/apis/trips/Dockerfile'
+  tag: '$(Build.BuildId)'
+
+steps: 
+- task: GoTool@0
+  inputs:
+    version: '1.13.15'
+- task: Go@0
+  inputs:
+    command: 'get'
+    arguments: '-d'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/apis/trips'
+- task: Go@0
+  inputs:
+    command: 'build'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/apis/trips'
+- task: Go@0
+  inputs:
+    command: 'test'
+    arguments: '-v ./tests'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/apis/trips'
+- task: Docker@2
+  displayName: Build and push an image to container registry
+  inputs:
+    command: buildAndPush
+    repository: $(imageRepository)
+    dockerfile: $(dockerfilePath)
+    containerRegistry: $(dockerRegistryServiceConnection)
+    tags: |
+      $(tag)
+- task: CopyFiles@2
+  inputs:
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+- task: PublishBuildArtifacts@1
+  inputs:
+     artifactName: drop

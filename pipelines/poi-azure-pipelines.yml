@@ -13,6 +13,8 @@ variables:
   solution: '$(System.DefaultWorkingDirectory)/apis/poi/poi.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
+  imageRepository: 'devopsoh/api-poi'
+  containerRegistry: 'openhacka2k61f74acr.azurecr.io'
 
 steps:
 - task: NuGetToolInstaller@1

@@ -50,6 +50,13 @@ namespace poi.Controllers
             return Ok(items);
         }
 
+        [HttpGet("trip/team", Name = "GetTeamID")]
+        [Produces("application/json", Type = typeof(string))]
+        public IActionResult GetTeamID()
+        {
+            return Ok("Team01");
+        }
+
         [HttpPost(Name = "CreatePOI")]
         public IActionResult CreatePoi([FromBody] POI poi)
         {

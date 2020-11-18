@@ -1,0 +1,47 @@
+# Docker
+# Build and push an image to Azure Container Registry
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+resources:
+- repo: self
+
+variables:
+  # Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: '75f5bbf3-21b8-4d66-b774-f62c7d72c01f'
+  imageRepository: 'devopsoh/api-userprofile'
+  containerRegistry: 'openhacka2k61f74acr.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/apis/userprofile/Dockerfile'
+  tag: '$(Build.BuildId)'
+  
+  # Agent VM image name
+  #vmImageName: 'ubuntu-latest'
+
+
+steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: '10.x'
+  displayName: 'Install Node.js'
+
+- script: |
+    cd apis/userprofile
+    npm install
+    npm run build
+    npm run test
+  displayName: 'npm install, build and Test'
+
+- task: Docker@2
+  displayName: Build and push an image to container registry
+  inputs:
+    command: buildAndPush
+    repository: $(imageRepository)
+    dockerfile: $(dockerfilePath)
+    containerRegistry: $(dockerRegistryServiceConnection)
+    tags: |
+      $(tag)

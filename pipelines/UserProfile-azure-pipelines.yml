@@ -14,10 +14,10 @@ resources:
 variables:
   # Container registry service connection established during pipeline creation
   dockerRegistryServiceConnection: '75f5bbf3-21b8-4d66-b774-f62c7d72c01f'
-  imageRepository: 'userprofileimg'
+  imageRepository: 'devopsoh/api-userprofile'
   containerRegistry: 'openhacka2k61f74acr.azurecr.io'
   dockerfilePath: '$(Build.SourcesDirectory)/apis/userprofile/Dockerfile'
-  tag: '$(Build.BuildId)'
+  tag: '$(Revision)'
   
   # Agent VM image name
   #vmImageName: 'ubuntu-latest'

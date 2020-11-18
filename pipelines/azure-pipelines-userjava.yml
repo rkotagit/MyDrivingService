@@ -21,7 +21,7 @@ stages:
 
 - stage: Build
   jobs:
-  - job: Maven
+  - job: BuildAndPackage
     steps:
     - task: Maven@3
       inputs:
@@ -45,19 +45,22 @@ stages:
 
 - stage : Staging
   dependsOn: Build
-  environment: release
   jobs:
-  - job: Publish
-    steps:
-    - task: AzureRmWebAppDeployment@4
-      inputs:
-        ConnectionType: 'AzureRM'
-        azureSubscription: 'OTA-PRD-158(4631b064-cd36-4785-99b7-195ab94da98b)'
-        appType: 'webAppContainer'
-        WebAppName: 'openhacka2k61f74userjava'
-        deployToSlotOrASE: true
-        ResourceGroupName: 'openhacka2k61f74rg'
-        SlotName: 'staging'
-        DockerNamespace: $(containerRegistry)
-        DockerRepository: $(imageRepository)
-        DockerImageTag: '$(Build.BuildId)'
+  - deployment: PublishWebApp
+    environment: staging
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureRmWebAppDeployment@4
+            inputs:
+              ConnectionType: 'AzureRM'
+              azureSubscription: 'OTA-PRD-158(4631b064-cd36-4785-99b7-195ab94da98b)'
+              appType: 'webAppContainer'
+              WebAppName: 'openhacka2k61f74userjava'
+              deployToSlotOrASE: true
+              ResourceGroupName: 'openhacka2k61f74rg'
+              SlotName: 'staging'
+              DockerNamespace: $(containerRegistry)
+              DockerRepository: $(imageRepository)
+              DockerImageTag: '$(Build.BuildId)'

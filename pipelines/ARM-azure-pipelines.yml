@@ -46,10 +46,10 @@ stages:
     - task: AzurePowerShell@5
       displayName: 'Get ARM Storage SAS URI'
       inputs:
-        azureSubscription: $(azureProdSubscription)
+        azureSubscription: 'OTA-PRD-158(4631b064-cd36-4785-99b7-195ab94da98b)'
         ScriptType: 'InlineScript'
         Inline: |
-          Set-AzCurrentStorageAccount -ResourceGroupName $(primaryProdResourceGroupName) -Name $(storageAccountName)
+          Set-AzCurrentStorageAccount -ResourceGroupName 'openhackdeployrg' -Name $(storageAccountName)
           $token = New-AzStorageContainerSASToken -Name $(containerName) -Permission rw -ExpiryTime (Get-Date).AddMinutes(120.0)
           Write-Output "##vso[task.setvariable variable=artifactsLocationSasToken;]$token"
           $url = (Get-AzStorageContainer -Name $(containerName)).CloudBlobContainer.Uri.AbsoluteUri + '/armtemplates/'

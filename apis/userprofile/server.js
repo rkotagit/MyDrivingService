@@ -1,4 +1,7 @@
 'use strict';
+var appInsights = require('applicationinsights');
+appInsights.setup('618f7639-d08b-4f1f-9a64-51df20f19953');
+appInsights.start();
 
 var Http = require('http');
 var Express = require('express');

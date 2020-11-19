@@ -6,6 +6,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"time"
+
+	"github.com/shirou/gopsutil/cpu"
 
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 
@@ -31,7 +34,9 @@ func main() {
 
 	client.Context().Tags.Cloud().SetRole("api-trips")
 
-	metriccpu := appinsights.NewMetricTelemetry("CPU Util")
+	percent, _ := cpu.Percent(time.Second, true)
+
+	metriccpu := appinsights.NewMetricTelemetry("CPU Util", percent[0])
 	client.Track(metriccpu)
 
 	// event := appinsights.NewEventTelemetry("button clicked")

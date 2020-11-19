@@ -18,7 +18,7 @@ stages:
         resourceGroupName: 'openhackdeployrg'
         location: 'WESTUS'
         templateLocation: 'Linked artifact'
-        csmFile: '$(System.DefaultWorkingDirectory)/ARM/StorageAccount/template.json'
+        csmFile: '$(System.DefaultWorkingDirectory)/ARM/ARMStorage/template.json'
         deploymentMode: 'Incremental'
         deploymentOutputs: 'ArmStorageOutput'
     - task: PowerShell@2

@@ -62,3 +62,37 @@ steps:
     DockerNamespace: 'openhacka2k61f74acr.azurecr.io'
     DockerRepository: 'devopsoh/api-trips'
     DockerImageTag: '$(Build.BuildId)'
+
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: |
+        $timeout = new-timespan -Minutes 2
+        $sw = [diagnostics.stopwatch]::StartNew()
+        $R = $null
+        while ($sw.elapsed -lt $timeout){
+            try{
+                $R = Invoke-WebRequest -URI "https://openhacka2k61f74trips-staging.azurewebsites.net/api/healthcheck/trips"
+                if ($R.StatusCode -eq "200"){
+                    exit 0
+                }
+                else{
+                    write-host "Status:" + $R.StatusCode
+                }
+            }
+            catch{
+                write-host "Not 200 :("
+            }
+            Start-Sleep -Seconds 10
+        }
+        exit 1
+    pwsh: true
+
+
+- task: AzureAppServiceManage@0
+  inputs:
+    azureSubscription: 'OTA-PRD-158(4631b064-cd36-4785-99b7-195ab94da98b)'
+    Action: 'Swap Slots'
+    WebAppName: 'openhacka2k61f74trips'
+    ResourceGroupName: 'openhacka2k61f74rg'
+    SourceSlot: 'staging'

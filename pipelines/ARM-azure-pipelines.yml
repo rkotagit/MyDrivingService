@@ -1,34 +1,24 @@
 trigger:
 - master
-variables:
-
-  azureDevSubscription: MSFT - SWIFT In Azure (POC) (a59a1492-7472-46dd-93a6-2af298a97fb0)
-  devSubscriptionId: 'a59a1492-7472-46dd-93a6-2af298a97fb0'
-  azureProdSubscription: MSFT - SWIFT In Azure (POC) (a59a1492-7472-46dd-93a6-2af298a97fb0)
-  prodSubscriptionId: 'a59a1492-7472-46dd-93a6-2af298a97fb0'
-
 
 stages:
 - stage: ARM
-  variables:
-    tagEnvironment: PRE-PRODUCTION
-    environmentName: DEV
-    paymentGatewaySubnetId: /subscriptions/43ffc298-6297-4c09-9ddb-fa5765450fce/resourceGroups/rg-pgw-dev-westus2/providers/Microsoft.Network/virtualNetworks/vnet-pgw-DEV-westus2/subnets/sf-cluster-apps-snet-DEV-westus2
+
   jobs:
-  - deployment: Develop
-    environment: SWIFT-Dev
+  - deployment: ARMTemplates
   - job: DeployInfrastructure
     pool:
       vmImage: 'windows-2019'
     steps:
     - task: AzureResourceGroupDeployment@2
-      displayName: 'Deploy ARM Storage Account'
       inputs:
-        azureSubscription: $(azureDevSubscription)
-        resourceGroupName: $(primaryDevResourceGroupName)
+        azureSubscription: 'OTA-PRD-158(4631b064-cd36-4785-99b7-195ab94da98b)'
+        action: 'Create Or Update Resource Group'
+        resourceGroupName: 'openhackdeployrg'
         location: 'WESTUS'
-        csmFile: $(System.DefaultWorkingDirectory)ARM/StorageAccount/template.json
-        overrideParameters:
+        templateLocation: 'Linked artifact'
+        csmFile: '$(System.DefaultWorkingDirectory)/ARM/StorageAccount/template.json'
+        deploymentMode: 'Incremental'
         deploymentOutputs: 'ArmStorageOutput'
     - task: PowerShell@2
       displayName: 'Get BLOB ARM Outputs'
@@ -46,23 +36,34 @@ stages:
     - task: AzureFileCopy@4
       displayName: 'Upload ARM Templates to BLOB'
       inputs:
-        SourcePath: $(System.DefaultWorkingDirectory)/Deployment/ARM/
-        azureSubscription: $(azureDevSubscription)
+        SourcePath: $(System.DefaultWorkingDirectory)/ARM/
+        azureSubscription: 'OTA-PRD-158(4631b064-cd36-4785-99b7-195ab94da98b)'
         Destination: AzureBlob
         storage: $(storageAccountName)
         ContainerName: $(containerName)
+  
+    - task: AzurePowerShell@5
+      displayName: 'Get ARM Storage SAS URI'
+      inputs:
+        azureSubscription: $(azureProdSubscription)
+        ScriptType: 'InlineScript'
+        Inline: |
+          Set-AzCurrentStorageAccount -ResourceGroupName $(primaryProdResourceGroupName) -Name $(storageAccountName)
+          $token = New-AzStorageContainerSASToken -Name $(containerName) -Permission rw -ExpiryTime (Get-Date).AddMinutes(120.0)
+          Write-Output "##vso[task.setvariable variable=artifactsLocationSasToken;]$token"
+          $url = (Get-AzStorageContainer -Name $(containerName)).CloudBlobContainer.Uri.AbsoluteUri + '/armtemplates/'
+          Write-Output "##vso[task.setvariable variable=artifactsLocation;]$url"
         azurePowerShellVersion: 'LatestVersion'
+
     - task: AzureResourceManagerTemplateDeployment@3
-      displayName: 'Deploy Master Linked Template'
       inputs:
         deploymentScope: 'Resource Group'
-        azureResourceManagerConnection: $(azureDevSubscription)
-        subscriptionId: $(devSubscriptionId)
+        azureResourceManagerConnection: 'OTA-PRD-158(4631b064-cd36-4785-99b7-195ab94da98b)'
+        subscriptionId: '4631b064-cd36-4785-99b7-195ab94da98b'
         action: 'Create Or Update Resource Group'
-        resourceGroupName: $(primaryDevResourceGroupName)
-        location: $(primaryLocation)
+        resourceGroupName: 'openhacka2k61f74rg'
+        location: 'West US'
         templateLocation: 'Linked artifact'
-        csmFile: '$(System.DefaultWorkingDirectory)/Deployment/ARM/LinkedTemplate.json'
-        overrideParameters: '-environmentName "$(environmentName)" -_artifactsLocation "$(artifactsLocation)" -_artifactsLocationSasToken "$(artifactsLocationSasToken)" -paymentGatewaySubnetId "$(paymentGatewaySubnetId)" -secondaryResourceGroup "$(secondaryDevResourceGroupName)" -secondSubscriptionId "$(devSubscriptionId)" -secretExpiryTime "$(secretExpiryTime)" -policyState "$(policyState)"'
+        csmFile: '$(System.DefaultWorkingDirectory)/ARM/masterTemplate.json'
+        overrideParameters: '-_artifactsLocation "$(artifactsLocation)" -_artifactsLocationSasToken "$(artifactsLocationSasToken)"'
         deploymentMode: 'Incremental'
-        deploymentOutputs: 'LinkedTemplateOutput'

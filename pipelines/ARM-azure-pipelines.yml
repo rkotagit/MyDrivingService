@@ -6,6 +6,7 @@ stages:
 
   jobs:
   - deployment: ARMTemplates
+    environment: Dev
   - job: DeployInfrastructure
     pool:
       vmImage: 'windows-2019'

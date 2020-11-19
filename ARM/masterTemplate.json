@@ -58,7 +58,7 @@
 					"location": {
 						"value": "WESTUS2"
 					},
-					"workspaceId": {
+					"workspaceResourceId": {
 						"value": "[reference('logAnalyticsResourceDeployment').outputs.workSpaceResourceId.value]"
 					}
 				}

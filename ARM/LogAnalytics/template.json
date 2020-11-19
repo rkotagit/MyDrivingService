@@ -1,0 +1,34 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "name": {
+            "defaultValue": "openhackloganalytics",
+            "type": "string"
+        },
+        "location": {
+            "defaultValue": "[resourcegroup().location]",
+            "type": "string"
+        }
+    },
+    "resources": [
+        {
+            "apiVersion": "2020-08-01",
+            "type": "Microsoft.OperationalInsights/workspaces",
+            "name": "[parameters('name')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "sku": {
+                    "Name": "PerGB2018"
+                },
+                "retentionInDays": 90
+            }
+        }
+    ],
+    "outputs": {
+        "workspaceResourceId": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('name'))]"
+        }
+    }
+}

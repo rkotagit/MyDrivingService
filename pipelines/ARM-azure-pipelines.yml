@@ -1,0 +1,68 @@
+trigger:
+- master
+variables:
+
+  azureDevSubscription: MSFT - SWIFT In Azure (POC) (a59a1492-7472-46dd-93a6-2af298a97fb0)
+  devSubscriptionId: 'a59a1492-7472-46dd-93a6-2af298a97fb0'
+  azureProdSubscription: MSFT - SWIFT In Azure (POC) (a59a1492-7472-46dd-93a6-2af298a97fb0)
+  prodSubscriptionId: 'a59a1492-7472-46dd-93a6-2af298a97fb0'
+
+
+stages:
+- stage: ARM
+  variables:
+    tagEnvironment: PRE-PRODUCTION
+    environmentName: DEV
+    paymentGatewaySubnetId: /subscriptions/43ffc298-6297-4c09-9ddb-fa5765450fce/resourceGroups/rg-pgw-dev-westus2/providers/Microsoft.Network/virtualNetworks/vnet-pgw-DEV-westus2/subnets/sf-cluster-apps-snet-DEV-westus2
+  jobs:
+  - deployment: Develop
+    environment: SWIFT-Dev
+  - job: DeployInfrastructure
+    pool:
+      vmImage: 'windows-2019'
+    steps:
+    - task: AzureResourceGroupDeployment@2
+      displayName: 'Deploy ARM Storage Account'
+      inputs:
+        azureSubscription: $(azureDevSubscription)
+        resourceGroupName: $(primaryDevResourceGroupName)
+        location: 'WESTUS'
+        csmFile: $(System.DefaultWorkingDirectory)ARM/StorageAccount/template.json
+        overrideParameters:
+        deploymentOutputs: 'ArmStorageOutput'
+    - task: PowerShell@2
+      displayName: 'Get BLOB ARM Outputs'
+      inputs:
+        targetType: 'inline'
+        script: |
+          $armOutputObj = $env:ArmStorageOutput | convertfrom-json
+          	$armOutputObj.PSObject.Properties | ForEach-Object {
+              $keyname = $_.Name
+              $value = $_.Value.value          
+              Write-Output $keyname
+              Write-Output $value
+              Write-Output "##vso[task.setvariable variable=$keyName]$value"
+            }
+    - task: AzureFileCopy@4
+      displayName: 'Upload ARM Templates to BLOB'
+      inputs:
+        SourcePath: $(System.DefaultWorkingDirectory)/Deployment/ARM/
+        azureSubscription: $(azureDevSubscription)
+        Destination: AzureBlob
+        storage: $(storageAccountName)
+        ContainerName: $(containerName)
+        azurePowerShellVersion: 'LatestVersion'
+    - task: AzureResourceManagerTemplateDeployment@3
+      displayName: 'Deploy Master Linked Template'
+      inputs:
+        deploymentScope: 'Resource Group'
+        azureResourceManagerConnection: $(azureDevSubscription)
+        subscriptionId: $(devSubscriptionId)
+        action: 'Create Or Update Resource Group'
+        resourceGroupName: $(primaryDevResourceGroupName)
+        location: $(primaryLocation)
+        templateLocation: 'Linked artifact'
+        csmFile: '$(System.DefaultWorkingDirectory)/Deployment/ARM/LinkedTemplate.json'
+        overrideParameters: '-environmentName "$(environmentName)" -_artifactsLocation "$(artifactsLocation)" -_artifactsLocationSasToken "$(artifactsLocationSasToken)" -paymentGatewaySubnetId "$(paymentGatewaySubnetId)" -secondaryResourceGroup "$(secondaryDevResourceGroupName)" -secondSubscriptionId "$(devSubscriptionId)" -secretExpiryTime "$(secretExpiryTime)" -policyState "$(policyState)"'
+        deploymentMode: 'Incremental'
+        deploymentOutputs: 'LinkedTemplateOutput'

@@ -29,7 +29,7 @@
 			"resources": [
 				{
 					"name": "armtemplates",
-					"type": "blobServices/containers",
+					"type": "containers",
 					"apiVersion": "2019-06-01",
 					"dependsOn": [
 						"[parameters('storageAccountName')]"

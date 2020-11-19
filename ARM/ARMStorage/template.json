@@ -48,7 +48,7 @@
         },
         "ContainerName": {
             "type": "string",
-            "value": "armtemplates"
+            "value": "armstorage"
         },
 		"StorageAccountId": {
             "type": "string",

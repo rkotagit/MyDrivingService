@@ -53,6 +53,7 @@ stages:
           $token = New-AzStorageContainerSASToken -Name $(containerName) -Permission rw -ExpiryTime (Get-Date).AddMinutes(120.0)
           Write-Output "##vso[task.setvariable variable=artifactsLocationSasToken;]$token"
           $url = (Get-AzStorageContainer -Name $(containerName)).CloudBlobContainer.Uri.AbsoluteUri + '/ARM/'
+          Write-Host $url
           Write-Output "##vso[task.setvariable variable=artifactsLocation;]$url"
         azurePowerShellVersion: 'LatestVersion'
 

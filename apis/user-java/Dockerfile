@@ -20,4 +20,4 @@ APPLICATIONINSIGHTS_CONNECTION_STRING="618f7639-d08b-4f1f-9a64-51df20f19953"
 COPY --from=build-env target/swagger-spring-1.0.0.jar user-java.jar
 COPY --from=build-env appi/applicationinsights-agent-3.0.0.jar applicationinsights-agent-3.0.0.jar
 
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/user-java.jar", "-javaagent:/applicationinsights-agent-3.0.0.jar"]
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-javaagent:/applicationinsights-agent-3.0.0.jar","-jar","/user-java.jar"]

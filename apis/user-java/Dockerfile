@@ -13,10 +13,11 @@ EXPOSE 8080
 ENV SQL_USER="YourUserName" \
 SQL_PASSWORD="changeme" \
 SQL_SERVER="changeme.database.windows.net" \
-SQL_DBNAME="mydrivingDB"
+SQL_DBNAME="mydrivingDB"\
+APPLICATIONINSIGHTS_CONNECTION_STRING="618f7639-d08b-4f1f-9a64-51df20f19953"
 
 # Add the application's jar to the container
 COPY --from=build-env target/swagger-spring-1.0.0.jar user-java.jar
-COPY --from=build-env appi appi
+COPY --from=build-env appi/applicationinsights-agent-3.0.0.jar applicationinsights-agent-3.0.0.jar
 
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/user-java.jar", "-javaagent:appi/applicationinsights-agent-3.0.0.jar"]
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/user-java.jar", "-javaagent:/applicationinsights-agent-3.0.0.jar"]

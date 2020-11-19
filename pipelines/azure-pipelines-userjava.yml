@@ -62,7 +62,7 @@ steps:
         $R = $null
         while ($sw.elapsed -lt $timeout){
             try{
-                $R = Invoke-WebRequest -URI "https://openhacka2k61f74userjava-staging.azurewebsites.net/api/healthcheck/poi"
+                $R = Invoke-WebRequest -URI "https://openhacka2k61f74userjava-staging.azurewebsites.net/api/healthcheck/user-java"
                 if ($R.StatusCode -eq "200"){
                     exit 0
                 }

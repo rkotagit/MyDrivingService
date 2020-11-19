@@ -1,0 +1,5 @@
+{
+    "instrumentationSettings": {
+      "connectionString": "InstrumentationKey=618f7639-d08b-4f1f-9a64-51df20f19953;IngestionEndpoint=https://westus2-0.in.applicationinsights.azure.com/"
+    }
+  }

@@ -1,20 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Swashbuckle.AspNetCore.Swagger;
-using System.Reflection;
-using poi.Data;
-using poi.Utility;
 using Newtonsoft.Json;
-using Microsoft.AspNetCore.Rewrite;
+using poi.Data;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace poi
 {
@@ -30,6 +22,8 @@ namespace poi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddApplicationInsightsTelemetry();
+
             services.AddMvc()
                 .AddJsonOptions(options =>
                 {
